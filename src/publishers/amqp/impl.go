@@ -1,74 +1,50 @@
-package publishers
+package amqp
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
-	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type AmqpPublisher struct {
-	mu      sync.Mutex
-	brokers map[string]*broker
+type amqpConn interface {
+	Channel() (amqpChannel, error)
+	IsClosed() bool
+	Close() error
 }
 
-func NewAmqpPublisher() *AmqpPublisher {
-	return &AmqpPublisher{brokers: make(map[string]*broker)}
+type amqpChannel interface {
+	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error)
+	PublishWithContext(ctx context.Context, exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
+	IsClosed() bool
 }
 
-func (p *AmqpPublisher) Key() string {
-	return "amqp"
-}
+type dialFunc func(uri string) (amqpConn, error)
+type realConn struct{ *amqp.Connection }
 
-func (p *AmqpPublisher) Config(cfg map[string]string, bindings map[string]any) PublisherConfig {
-	return AmqpConfig{}.Init(cfg, bindings)
-}
-
-func (p *AmqpPublisher) Publish(config PublisherConfig) error {
-	cfg, ok := config.(AmqpConfig)
-	if !ok {
-		panic("Config type was expected to be AmpqConfig")
+func (c realConn) Channel() (amqpChannel, error) {
+	ch, err := c.Connection.Channel()
+	if err != nil {
+		return nil, err
 	}
-
-	b := p.getBroker(cfg.uri)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	return b.publish(ctx, cfg.topic, []byte(cfg.message))
+	return ch, nil
 }
-
-func (p *AmqpPublisher) Close() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	var errs []error
-	for _, b := range p.brokers {
-		errs = append(errs, b.close())
+func dialAMQP(uri string) (amqpConn, error) {
+	conn, err := amqp.Dial(uri)
+	if err != nil {
+		return nil, err
 	}
-	return errors.Join(errs...)
-}
-func (p *AmqpPublisher) getBroker(uri string) *broker {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	b, ok := p.brokers[uri]
-	if !ok {
-		b = &broker{uri: uri}
-		p.brokers[uri] = b
-	}
-	return b
+	return realConn{conn}, nil
 }
 
 type broker struct {
-	uri string
+	uri  string
+	dial dialFunc
 
 	mu       sync.Mutex
-	conn     *amqp.Connection
-	ch       *amqp.Channel
+	conn     amqpConn
+	ch       amqpChannel
 	declared map[string]bool
 }
 
@@ -101,7 +77,7 @@ func (b *broker) publish(ctx context.Context, queue string, body []byte) error {
 // ensureChannel dials or redials as needed. Caller must hold b.mu.
 func (b *broker) ensureChannel() error {
 	if b.conn == nil || b.conn.IsClosed() {
-		conn, err := amqp.Dial(b.uri)
+		conn, err := b.dial(b.uri)
 		if err != nil {
 			return fmt.Errorf("dial broker: %w", err)
 		}

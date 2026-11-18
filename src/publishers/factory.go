@@ -3,20 +3,16 @@ package publishers
 import (
 	"errors"
 	"fmt"
+	"matt-andrews/postern/publishers/amqp"
+	"matt-andrews/postern/publishers/interfaces"
 )
 
-type Publisher interface {
-	Key() string
-	Publish(cfg PublisherConfig) error
-	Config(cfg map[string]string, bindings map[string]any) PublisherConfig
-}
+var registry = map[string]interfaces.Publisher{}
 
-var registry = map[string]Publisher{}
-
-func register(p Publisher) { registry[p.Key()] = p }
+func register(p interfaces.Publisher) { registry[p.Key()] = p }
 
 func Init() {
-	register(NewAmqpPublisher())
+	register(amqp.NewAmqpPublisher())
 }
 
 func PublishAll(outputs []map[string]string, bindings map[string]any) error {
