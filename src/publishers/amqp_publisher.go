@@ -23,13 +23,22 @@ func (p *AmqpPublisher) Key() string {
 	return "amqp"
 }
 
-func (p *AmqpPublisher) Publish(cfg map[string]string) error {
-	b := p.getBroker(cfg["uri"])
+func (p *AmqpPublisher) Config(cfg map[string]string, bindings map[string]any) PublisherConfig {
+	return AmpqConfig{}.Init(cfg, bindings)
+}
+
+func (p *AmqpPublisher) Publish(config PublisherConfig) error {
+	cfg, ok := config.(AmpqConfig)
+	if !ok {
+		panic("Config type was expected to be AmpqConfig")
+	}
+
+	b := p.getBroker(cfg.uri)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	return b.publish(ctx, cfg["topic"], []byte(cfg["message"]))
+	return b.publish(ctx, cfg.topic, []byte(cfg.message))
 }
 
 func (p *AmqpPublisher) Close() error {

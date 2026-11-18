@@ -7,7 +7,8 @@ import (
 
 type Publisher interface {
 	Key() string
-	Publish(cfg map[string]string) error
+	Publish(cfg PublisherConfig) error
+	Config(cfg map[string]string, bindings map[string]any) PublisherConfig
 }
 
 var registry = map[string]Publisher{}
@@ -18,7 +19,7 @@ func Init() {
 	register(NewAmqpPublisher())
 }
 
-func PublishAll(outputs []map[string]string) error {
+func PublishAll(outputs []map[string]string, bindings map[string]any) error {
 	var errs []error
 	for _, out := range outputs {
 		pub, ok := registry[out["type"]]
@@ -26,7 +27,9 @@ func PublishAll(outputs []map[string]string) error {
 			errs = append(errs, fmt.Errorf("unknown publisher type %q", out["type"]))
 			continue
 		}
-		if err := pub.Publish(out); err != nil {
+
+		cfg := pub.Config(out, bindings)
+		if err := pub.Publish(cfg); err != nil {
 			errs = append(errs, err)
 		}
 	}
