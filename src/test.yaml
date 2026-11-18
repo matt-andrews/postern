@@ -1,0 +1,11 @@
+version: "1"
+matches:
+  - name: test-1
+    route:
+      path: "/test"
+      method: GET
+    out:
+      - type: amqp
+        uri: "amqp://guest:guest@localhost:5672/"
+        topic: "test"
+        message: "hello"
