@@ -24,11 +24,11 @@ func (p *AmqpPublisher) Key() string {
 }
 
 func (p *AmqpPublisher) Config(cfg map[string]string, bindings map[string]any) PublisherConfig {
-	return AmpqConfig{}.Init(cfg, bindings)
+	return AmqpConfig{}.Init(cfg, bindings)
 }
 
 func (p *AmqpPublisher) Publish(config PublisherConfig) error {
-	cfg, ok := config.(AmpqConfig)
+	cfg, ok := config.(AmqpConfig)
 	if !ok {
 		panic("Config type was expected to be AmpqConfig")
 	}

@@ -9,7 +9,7 @@ func TestInitBasic(t *testing.T) {
 	cfg["topic"] = "test-topic"
 	cfg["message"] = "test-message"
 	bindings := make(map[string]any)
-	want := AmpqConfig{
+	want := AmqpConfig{
 		uri:     "test-uri",
 		topic:   "test-topic",
 		message: "test-message",
@@ -42,7 +42,7 @@ func TestInitWithLiquid(t *testing.T) {
 		"topic": "test-topic",
 	}
 	bindings["body"] = "test-message"
-	want := AmpqConfig{
+	want := AmqpConfig{
 		uri:     "test-uri",
 		topic:   "test-topic",
 		message: "test-message",
@@ -61,10 +61,10 @@ func TestInitWithLiquid(t *testing.T) {
 	}
 }
 
-func initConfig(cfg map[string]string, bindings map[string]any, t *testing.T) AmpqConfig {
-	init := AmpqConfig{}.Init(cfg, bindings)
+func initConfig(cfg map[string]string, bindings map[string]any, t *testing.T) AmqpConfig {
+	init := AmqpConfig{}.Init(cfg, bindings)
 
-	result, ok := init.(AmpqConfig)
+	result, ok := init.(AmqpConfig)
 	if !ok {
 		t.Errorf("Config type was expected to be AmpqConfig")
 	}
