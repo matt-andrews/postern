@@ -12,16 +12,11 @@ import (
 func main() {
 	publishers.Init()
 	config := Discover("test.yaml")
-	//fmt.Printf("%+v\n", config)
-	router := gin.Default()
 
-	for _, match := range config.Matches {
-		router.Handle(match.Route.Method, match.Route.Path, func(c *gin.Context) {
-			run(c, &match)
-		})
+	err := newRouter(config).Run("localhost:8080")
+	if err != nil {
+		panic(err)
 	}
-
-	router.Run("localhost:8080")
 }
 
 func run(c *gin.Context, match *ConfigMatch) {
