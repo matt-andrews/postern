@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"io"
 	"matt-andrews/postern/publishers"
 	"net/http"
 
@@ -63,6 +65,8 @@ func prepareBindings(c *gin.Context) map[string]any {
 		panic("Unable to read body")
 	}
 	result["body"] = rawBody
+	//reset the body so we can check json next
+	c.Request.Body = io.NopCloser(bytes.NewReader(rawBody))
 	//
 
 	//request body as json if possible
