@@ -40,6 +40,16 @@ func (p *KafkaPublisher) Publish(config interfaces.PublisherConfig) error {
 		msg.Key = []byte(cfg.key)
 	}
 
+	//check for headers and add them to the msg
+	if cfg.headers != nil {
+		for k, v := range cfg.headers {
+			msg.Headers = append(msg.Headers, kafka.Header{
+				Key:   k,
+				Value: []byte(v),
+			})
+		}
+	}
+
 	return p.pool.Publish(p.ctx, cfg.brokers, cfg.topic, msg)
 }
 

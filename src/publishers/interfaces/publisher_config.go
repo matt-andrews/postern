@@ -60,3 +60,31 @@ func RenderStringArray(in any, engine *liquid.Engine, bindings map[string]any) [
 	}
 	return result
 }
+
+func RenderStringMap(in any, engine *liquid.Engine, bindings map[string]any) map[string]string {
+	var items map[string]any
+
+	switch v := in.(type) {
+	case nil:
+		return nil
+	case map[string]any:
+		items = v
+	case map[any]any: // handle yaml.v2
+		items = make(map[string]any, len(v))
+		for k, val := range v {
+			items[fmt.Sprint(k)] = val
+		}
+	default:
+		return nil
+	}
+
+	result := make(map[string]string, len(items))
+	for k, val := range items {
+		s, ok := val.(string)
+		if !ok {
+			s = fmt.Sprint(val)
+		}
+		result[k] = liquidRender(s, engine, bindings)
+	}
+	return result
+}
