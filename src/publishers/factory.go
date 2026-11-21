@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"matt-andrews/postern/publishers/amqp"
 	"matt-andrews/postern/publishers/interfaces"
+	"matt-andrews/postern/publishers/kafka"
 )
 
 var registry = map[string]interfaces.Publisher{}
@@ -13,6 +14,7 @@ func register(p interfaces.Publisher) { registry[p.Key()] = p }
 
 func Init() {
 	register(amqp.NewAmqpPublisher())
+	register(kafka.NewKafkaPublisher())
 }
 
 func PublishAll(outputs []map[string]string, bindings map[string]any) error {

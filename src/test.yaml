@@ -12,3 +12,14 @@ matches:
           {
             "test": "{{ query.q }}"
           }
+
+  - name: kakfa-test
+    route:
+      path: "/kafka/:topic"
+      method: POST
+    out:
+      - type: kafka
+        uri: "localhost:9092"
+        topic: "orders.{{ route.topic }}"
+        key: "{{ json.customer_id }}"
+        message: '{"order": {{ json.id | json }}, "customer": {{ json.customer | json }}}'

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"io"
+	"log"
 	"matt-andrews/postern/publishers"
 	"net/http"
 
@@ -20,7 +21,11 @@ func main() {
 }
 
 func run(c *gin.Context, match *ConfigMatch) {
-	publishers.PublishAll(match.Out, prepareBindings(c))
+	if err := publishers.PublishAll(match.Out, prepareBindings(c)); err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"method": c.Request.Method,
 		"path":   c.Request.URL.Path,

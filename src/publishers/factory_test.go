@@ -18,6 +18,9 @@ func (f fakePublisher) Publish(cfg interfaces.PublisherConfig) error {
 func (f fakePublisher) Config(cfg map[string]string, bindings map[string]any) interfaces.PublisherConfig {
 	return fakeConfig{}
 }
+func (f fakePublisher) Close() error {
+	return nil
+}
 
 type fakeConfig struct{}
 
