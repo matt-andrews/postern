@@ -23,7 +23,7 @@ func (p *AmqpPublisher) Key() string {
 	return "amqp"
 }
 
-func (p *AmqpPublisher) Config(cfg map[string]string, bindings map[string]any) interfaces.PublisherConfig {
+func (p *AmqpPublisher) Config(cfg map[string]any, bindings map[string]any) interfaces.PublisherConfig {
 	return AmqpConfig{}.Init(cfg, bindings)
 }
 

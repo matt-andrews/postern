@@ -79,7 +79,7 @@ func (d *fakeDialer) dial(uri string) (amqpConn, error) {
 
 type fakeConfig struct{}
 
-func (f fakeConfig) Init(cfg map[string]string, bindings map[string]any) interfaces.PublisherConfig {
+func (f fakeConfig) Init(cfg map[string]any, bindings map[string]any) interfaces.PublisherConfig {
 	return fakeConfig{}
 }
 

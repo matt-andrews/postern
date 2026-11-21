@@ -7,7 +7,7 @@ import (
 )
 
 type PublisherConfig interface {
-	Init(cfg map[string]string, bindings map[string]any) PublisherConfig
+	Init(cfg map[string]any, bindings map[string]any) PublisherConfig
 }
 
 func LiquidRender(in string, engine *liquid.Engine, bindings map[string]any) string {

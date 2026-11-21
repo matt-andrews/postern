@@ -21,7 +21,7 @@ func (p *KafkaPublisher) Key() string {
 	return "kafka"
 }
 
-func (p *KafkaPublisher) Config(cfg map[string]string, bindings map[string]any) interfaces.PublisherConfig {
+func (p *KafkaPublisher) Config(cfg map[string]any, bindings map[string]any) interfaces.PublisherConfig {
 	return KafkaConfig{}.Init(cfg, bindings)
 }
 

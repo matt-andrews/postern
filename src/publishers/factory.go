@@ -17,10 +17,10 @@ func Init() {
 	register(kafka.NewKafkaPublisher())
 }
 
-func PublishAll(outputs []map[string]string, bindings map[string]any) error {
+func PublishAll(outputs []map[string]any, bindings map[string]any) error {
 	var errs []error
 	for _, out := range outputs {
-		pub, ok := registry[out["type"]]
+		pub, ok := registry[out["type"].(string)]
 		if !ok {
 			errs = append(errs, fmt.Errorf("unknown publisher type %q", out["type"]))
 			continue

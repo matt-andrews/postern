@@ -2,9 +2,9 @@ package amqp
 
 import "testing"
 
-///ensure basic mapping without any liquid
+// /ensure basic mapping without any liquid
 func TestInitBasic(t *testing.T) {
-	cfg := make(map[string]string)
+	cfg := make(map[string]any)
 	cfg["uri"] = "test-uri"
 	cfg["topic"] = "test-topic"
 	cfg["message"] = "test-message"
@@ -28,9 +28,9 @@ func TestInitBasic(t *testing.T) {
 	}
 }
 
-///test some basic liquid rendering on expected fields
+// /test some basic liquid rendering on expected fields
 func TestInitWithLiquid(t *testing.T) {
-	cfg := make(map[string]string)
+	cfg := make(map[string]any)
 	cfg["uri"] = "{{ query.uri }}"
 	cfg["topic"] = "{{ route.topic }}"
 	cfg["message"] = "{{ body }}"
@@ -61,7 +61,7 @@ func TestInitWithLiquid(t *testing.T) {
 	}
 }
 
-func initConfig(cfg map[string]string, bindings map[string]any, t *testing.T) AmqpConfig {
+func initConfig(cfg map[string]any, bindings map[string]any, t *testing.T) AmqpConfig {
 	init := AmqpConfig{}.Init(cfg, bindings)
 
 	result, ok := init.(AmqpConfig)

@@ -14,7 +14,7 @@ type Config struct {
 type ConfigMatch struct {
 	Name  string
 	Route ConfigRoute
-	Out   []map[string]string
+	Out   []map[string]any
 }
 
 type ConfigRoute struct {

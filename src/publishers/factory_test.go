@@ -15,7 +15,7 @@ func (f fakePublisher) Key() string {
 func (f fakePublisher) Publish(cfg interfaces.PublisherConfig) error {
 	return nil
 }
-func (f fakePublisher) Config(cfg map[string]string, bindings map[string]any) interfaces.PublisherConfig {
+func (f fakePublisher) Config(cfg map[string]any, bindings map[string]any) interfaces.PublisherConfig {
 	return fakeConfig{}
 }
 func (f fakePublisher) Close() error {
@@ -24,7 +24,7 @@ func (f fakePublisher) Close() error {
 
 type fakeConfig struct{}
 
-func (f fakeConfig) Init(cfg map[string]string, bindings map[string]any) interfaces.PublisherConfig {
+func (f fakeConfig) Init(cfg map[string]any, bindings map[string]any) interfaces.PublisherConfig {
 	return fakeConfig{}
 }
 
@@ -34,7 +34,7 @@ func TestFactory_PublishAll_Success(t *testing.T) {
 	register(fakePublisher{})
 
 	bindings := make(map[string]any)
-	tests := []map[string]string{
+	tests := []map[string]any{
 		{
 			"type": "fake",
 		},
@@ -50,7 +50,7 @@ func TestFactory_PublishAll_FailedToFind(t *testing.T) {
 	register(fakePublisher{})
 
 	bindings := make(map[string]any)
-	tests := []map[string]string{
+	tests := []map[string]any{
 		{
 			"type": "fake-cant-find",
 		},
