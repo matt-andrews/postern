@@ -7,7 +7,7 @@ import (
 )
 
 type KafkaConfig struct {
-	uri     string
+	brokers []string
 	topic   string
 	key     string
 	message string
@@ -17,10 +17,10 @@ func (c KafkaConfig) Init(cfg map[string]any, bindings map[string]any) interface
 
 	engine := liquid.NewEngine()
 
-	c.uri = interfaces.LiquidRender(cfg["uri"].(string), engine, bindings)
-	c.topic = interfaces.LiquidRender(cfg["topic"].(string), engine, bindings)
-	c.message = interfaces.LiquidRender(cfg["message"].(string), engine, bindings)
-	c.key = interfaces.LiquidRender(cfg["key"].(string), engine, bindings)
+	c.brokers = interfaces.RenderStringArray(cfg["brokers"], engine, bindings)
+	c.topic = interfaces.RenderString(cfg["topic"], engine, bindings)
+	c.message = interfaces.RenderString(cfg["message"], engine, bindings)
+	c.key = interfaces.RenderString(cfg["key"], engine, bindings)
 
 	return c
 }

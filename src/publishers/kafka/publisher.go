@@ -40,7 +40,7 @@ func (p *KafkaPublisher) Publish(config interfaces.PublisherConfig) error {
 		msg.Key = []byte(cfg.key)
 	}
 
-	return p.pool.Publish(p.ctx, []string{cfg.uri}, cfg.topic, msg)
+	return p.pool.Publish(p.ctx, cfg.brokers, cfg.topic, msg)
 }
 
 func (p *KafkaPublisher) Close() error {
