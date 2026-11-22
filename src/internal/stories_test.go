@@ -1,6 +1,6 @@
 //go:build integration
 
-package main
+package internal
 
 import (
 	"fmt"
@@ -15,6 +15,7 @@ import (
 
 	"matt-andrews/postern/internal/harness"
 	"matt-andrews/postern/publishers"
+	"matt-andrews/postern/runtime"
 )
 
 // runs postern in-process with the given YAML config and returns its base URL, e.g. "http://127.0.0.1:54321".
@@ -27,7 +28,7 @@ func startPostern(t *testing.T, yamlConfig string) string {
 	}
 
 	publishers.Init()
-	srv := httptest.NewServer(newRouter(Discover(path)))
+	srv := httptest.NewServer(runtime.NewRouter(runtime.Discover(path)))
 	t.Cleanup(srv.Close)
 	return srv.URL
 }
