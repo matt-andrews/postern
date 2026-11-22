@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -54,7 +55,22 @@ func (p *WriterPool) getOrCreate(brokers []string, topic string) *kafka.Writer {
 
 func (p *WriterPool) Publish(ctx context.Context, brokers []string, topic string, msgs ...kafka.Message) error {
 	w := p.getOrCreate(brokers, topic)
-	return w.WriteMessages(ctx, msgs...)
+	//add retry logic on publish to handle topic not created yet
+	const attempts = 5
+	var err error
+	for range attempts {
+		err = w.WriteMessages(ctx, msgs...)
+		if !errors.Is(err, kafka.UnknownTopicOrPartition) && !errors.Is(err, kafka.LeaderNotAvailable) {
+			return err
+		}
+
+		select {
+		case <-time.After(200 * time.Millisecond):
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+	return err
 }
 
 func (p *WriterPool) Close() error {

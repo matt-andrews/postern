@@ -109,3 +109,37 @@ matches:
 		t.Errorf("header source = %q, want %q", msg.Headers["source"], want)
 	}
 }
+func TestStory_KafkaFirstMessageToNewTopic(t *testing.T) {
+	broker := harness.StartKafka(t)
+	// not created up front: postern's first publish has to create it
+	topic := harness.UniqueName("orders")
+
+	postern := startPostern(t, fmt.Sprintf(`
+matches:
+  - name: order-created
+    route:
+      path: "/hooks/:topic"
+      method: POST
+    out:
+      - type: kafka
+        brokers: [%q]
+        topic: "{{ route.topic }}"
+        message: '{"order": {{ json.id | json }}}'
+`, broker.Brokers[0]))
+
+	resp, err := http.Post(postern+"/hooks/"+topic, "application/json", strings.NewReader(`{"id":"first"}`))
+	if err != nil {
+		t.Fatalf("post webhook: %v", err)
+	}
+	defer resp.Body.Close()
+	io.Copy(io.Discard, resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	msg := broker.ExpectMessage(t, topic, 10*time.Second)
+	if want := `{"order": "first"}`; msg.Body != want {
+		t.Errorf("message body = %s, want %s", msg.Body, want)
+	}
+}
