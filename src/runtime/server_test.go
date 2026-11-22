@@ -109,12 +109,11 @@ func TestPrepareBindings_RawBody(t *testing.T) {
 
 	result := prepareBindings(c)
 
-	// Note: body is stored as []byte, not string.
-	body, ok := result["body"].([]byte)
+	body, ok := result["body"].(string)
 	if !ok {
-		t.Fatalf("body has type %T, want []byte", result["body"])
+		t.Fatalf("body has type %T, want string", result["body"])
 	}
-	if got, want := string(body), "hello world"; got != want {
+	if got, want := body, "hello world"; got != want {
 		t.Errorf("body = %q, want %q", got, want)
 	}
 }
@@ -124,9 +123,9 @@ func TestPrepareBindings_EmptyBody(t *testing.T) {
 
 	result := prepareBindings(c)
 
-	body, ok := result["body"].([]byte)
+	body, ok := result["body"].(string)
 	if !ok {
-		t.Fatalf("body has type %T, want []byte", result["body"])
+		t.Fatalf("body has type %T, want string", result["body"])
 	}
 	if len(body) != 0 {
 		t.Errorf("body = %q, want empty", body)
@@ -152,7 +151,7 @@ func TestPrepareBindings_JSONBody(t *testing.T) {
 
 	result := prepareBindings(c)
 
-	if got, want := string(result["body"].([]byte)), `{"name":"alice","age":30}`; got != want {
+	if got, want := result["body"].(string), `{"name":"alice","age":30}`; got != want {
 		t.Errorf("body = %q, want %q", got, want)
 	}
 

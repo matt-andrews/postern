@@ -20,7 +20,13 @@ func (c KafkaConfig) Init(cfg map[string]any, bindings map[string]any) interface
 
 	c.brokers = interfaces.RenderStringArray(cfg["brokers"], engine, bindings)
 	c.topic = interfaces.RenderString(cfg["topic"], engine, bindings)
-	c.message = interfaces.RenderString(cfg["message"], engine, bindings)
+	if cfg["message"] == nil || cfg["message"] == "" {
+		if body, ok := bindings["body"]; ok {
+			c.message = body.(string)
+		}
+	} else {
+		c.message = interfaces.RenderString(cfg["message"], engine, bindings)
+	}
 	c.key = interfaces.RenderString(cfg["key"], engine, bindings)
 	c.headers = interfaces.RenderStringMap(cfg["headers"], engine, bindings)
 

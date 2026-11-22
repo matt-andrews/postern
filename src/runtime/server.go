@@ -85,7 +85,7 @@ func prepareBindings(c *gin.Context) map[string]any {
 	if err != nil {
 		panic("Unable to read body")
 	}
-	result["body"] = rawBody
+	result["body"] = string(rawBody)
 	//reset the body so we can check json next
 	c.Request.Body = io.NopCloser(bytes.NewReader(rawBody))
 	//
