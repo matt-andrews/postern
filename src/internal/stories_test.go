@@ -67,6 +67,39 @@ matches:
 	}
 }
 
+func TestStory_RequestBodyForwardsToMessage(t *testing.T) {
+	broker := harness.StartRabbit(t)
+	queue := harness.UniqueName("orders")
+
+	postern := startPostern(t, fmt.Sprintf(`
+matches:
+  - name: order-created
+    route:
+      path: "/hooks/:topic"
+      method: POST
+    out:
+      - type: amqp
+        uri: %q
+        topic: "{{ route.topic }}"
+`, broker.URI))
+
+	resp, err := http.Post(postern+"/hooks/"+queue, "application/json", strings.NewReader(`{"id":"abc"}`))
+	if err != nil {
+		t.Fatalf("post webhook: %v", err)
+	}
+	defer resp.Body.Close()
+	io.Copy(io.Discard, resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200", resp.StatusCode)
+	}
+
+	msg := broker.ExpectMessage(t, queue, 5*time.Second)
+	if want := `{"id":"abc"}`; msg.Body != want {
+		t.Errorf("message body = %s, want %s", msg.Body, want)
+	}
+}
+
 func TestStory_HttpBecomesKafkaMessage(t *testing.T) {
 	broker := harness.StartKafka(t)
 	topic := broker.CreateTopic(t, "orders")

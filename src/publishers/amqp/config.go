@@ -17,6 +17,12 @@ func (c AmqpConfig) Init(cfg map[string]any, bindings map[string]any) interfaces
 
 	c.uri = interfaces.RenderString(cfg["uri"], engine, bindings)
 	c.topic = interfaces.RenderString(cfg["topic"], engine, bindings)
-	c.message = interfaces.RenderString(cfg["message"], engine, bindings)
+	if cfg["message"] == nil || cfg["message"] == "" {
+		if body, ok := bindings["body"]; ok {
+			c.message = body.(string)
+		}
+	} else {
+		c.message = interfaces.RenderString(cfg["message"], engine, bindings)
+	}
 	return c
 }
