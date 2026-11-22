@@ -28,7 +28,7 @@ func (p *KafkaPublisher) Config(cfg map[string]any, bindings map[string]any) int
 func (p *KafkaPublisher) Publish(config interfaces.PublisherConfig) error {
 	cfg, ok := config.(KafkaConfig)
 	if !ok {
-		return fmt.Errorf("amqp publisher: expected AmqpConfig, got %T", config)
+		return fmt.Errorf("kafka publisher: expected KafkaConfig, got %T", config)
 	}
 
 	msg := kafka.Message{
